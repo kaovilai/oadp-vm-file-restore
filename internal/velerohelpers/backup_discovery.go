@@ -59,6 +59,7 @@ type VeleroBackupContentsReader struct {
 	logger                logrus.FieldLogger
 	insecureSkipTLSVerify bool
 	caCertFile            string
+	bslCACert             string
 	downloadTimeout       time.Duration
 }
 
@@ -121,7 +122,7 @@ func (r *VeleroBackupContentsReader) FetchBackupMetadata(ctx context.Context, ba
 
 	// Download backup resource list (contains the actual backed up resources)
 	buf := new(bytes.Buffer)
-	err := downloadrequest.Stream(
+	err := downloadrequest.StreamWithBSLCACert(
 		ctx,
 		r.k8sClient,
 		backup.Namespace,
@@ -131,6 +132,7 @@ func (r *VeleroBackupContentsReader) FetchBackupMetadata(ctx context.Context, ba
 		r.downloadTimeout,
 		r.insecureSkipTLSVerify,
 		r.caCertFile,
+		r.bslCACert,
 	)
 
 	if err != nil {
@@ -211,7 +213,7 @@ func (r *VeleroBackupContentsReader) FetchPVCFromBackup(ctx context.Context, bac
 
 	// Download backup contents (the tar.gz file)
 	buf := new(bytes.Buffer)
-	err := downloadrequest.Stream(
+	err := downloadrequest.StreamWithBSLCACert(
 		ctx,
 		r.k8sClient,
 		backup.Namespace,
@@ -221,6 +223,7 @@ func (r *VeleroBackupContentsReader) FetchPVCFromBackup(ctx context.Context, bac
 		r.downloadTimeout,
 		r.insecureSkipTLSVerify,
 		r.caCertFile,
+		r.bslCACert,
 	)
 
 	if err != nil {
@@ -302,7 +305,7 @@ func (r *VeleroBackupContentsReader) downloadVMResource(ctx context.Context, bac
 	logger.Debug("Downloading backup tar to extract individual VM resource")
 
 	buf := new(bytes.Buffer)
-	err := downloadrequest.Stream(
+	err := downloadrequest.StreamWithBSLCACert(
 		ctx,
 		r.k8sClient,
 		backup.Namespace,
@@ -312,6 +315,7 @@ func (r *VeleroBackupContentsReader) downloadVMResource(ctx context.Context, bac
 		r.downloadTimeout,
 		r.insecureSkipTLSVerify,
 		r.caCertFile,
+		r.bslCACert,
 	)
 
 	if err != nil {

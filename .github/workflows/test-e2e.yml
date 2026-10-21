@@ -1,8 +1,10 @@
 name: E2E Tests
 
+# Manual-only: the e2e suite installs MinIO from quay.io/minio/minio:latest, which
+# now returns 401 UNAUTHORIZED, so BeforeSuite fails on every push/PR run.
+# Re-enable push/pull_request once the test image source is fixed.
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   test-e2e:
